@@ -1,17 +1,12 @@
 import Head from "next/head";
 import { useRouter } from "next/router";
 import React from "react";
+import { app } from "utils/config";
 
 const PageHead = ({ title, keywords, description }) => {
   const pageTitle = title
-    ? title +
-      " | " +
-      process.env.NEXT_PUBLIC_APP_FIRST_NAME +
-      " " +
-      process.env.NEXT_PUBLIC_APP_LAST_NAME
-    : process.env.NEXT_PUBLIC_APP_FIRST_NAME +
-      " " +
-      process.env.NEXT_PUBLIC_APP_LAST_NAME;
+    ? title + " | " + app.firstName + " " + app.lastName
+    : app.firstName + " " + app.lastName;
 
   const router = useRouter();
 
