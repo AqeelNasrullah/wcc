@@ -13,6 +13,7 @@ const Logo = ({ vertical }) => {
             width={vertical ? 100 : 75}
             height={vertical ? 100 : 75}
             alt="Not Found"
+            priority
           />
         </div>
         <div className="d-flex align-items-center">

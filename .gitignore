@@ -31,3 +31,6 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+#other_files
+client_secret_510760960803-itl3aa00jr3vhhmab68pr82m15c5a7m7.apps.googleusercontent.com.json

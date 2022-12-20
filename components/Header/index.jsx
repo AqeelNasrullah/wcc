@@ -1,19 +1,69 @@
 import Logo from "components/Logo";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Badge } from "reactstrap";
+import { Badge, Spinner } from "reactstrap";
 import NavLink from "./NavLink";
+import { getSession, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const Header = () => {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const [loginData, setLoginData] = useState(null);
+
+  console.log(session);
+
+  useEffect(() => {
+    if (status === "loading") {
+      setLoginData("Validating...");
+    } else if (status === "authenticated") {
+      setLoginData(
+        <>
+          <Link href="/profile">
+            {session?.user?.name}
+            {session?.role === "admin" && (
+              <span>
+                {" "}
+                (
+                {session?.role?.charAt(0).toUpperCase() +
+                  session?.role?.slice(1)}
+                )
+              </span>
+            )}
+          </Link>
+          &nbsp; &nbsp;
+          <Link
+            href="/login"
+            onClick={async (e) => {
+              e.preventDefault();
+              await signOut({ redirect: false })
+                .then(() => {
+                  router.push("/login");
+                })
+                .catch((err) => console.log("SignIn Error: ", err));
+            }}
+          >
+            Logout
+          </Link>
+        </>
+      );
+    } else {
+      setLoginData(
+        <Link href="/login">
+          <i className="fa-solid fa-user"></i> Login
+        </Link>
+      );
+    }
+  }, [session, status]);
+
   return (
     <header className="header d-flex align-items-center gap-3">
       <Logo />
       <nav className="flex-grow-1">
         <div className="d-flex justify-content-end">
           <p className="mb-0 header--primary-nav">
-            <Link href="/login">
-              <i className="fa-solid fa-user"></i> Login
-            </Link>
+            {loginData}
             &nbsp;&nbsp; &nbsp;&nbsp;
             <Link href="/cart" className="position-relative me-4">
               <i className="fa-solid fa-shopping-cart"></i>{" "}

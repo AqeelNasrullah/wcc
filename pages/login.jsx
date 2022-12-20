@@ -5,8 +5,11 @@ import InputField from "components/UI/InputField";
 import { Formik } from "formik";
 import Link from "next/link";
 import { useState } from "react";
-import { Button, Col, Row } from "reactstrap";
+import { Button, Col, Row, Spinner } from "reactstrap";
 import { app } from "utils/config";
+import { getSession, signIn } from "next-auth/react";
+import { toast } from "react-toastify";
+import { useRouter } from "next/router";
 
 const loginInputValidator = (values) => {
   const errors = {};
@@ -30,6 +33,10 @@ const loginInputValidator = (values) => {
 
 const Login = () => {
   const [showPass, setShowPass] = useState("password");
+  const [googleSignInActivityIndicator, setGoogleSignInActivityIndicator] =
+    useState(false);
+
+  const router = useRouter();
 
   return (
     <>
@@ -58,14 +65,41 @@ const Login = () => {
         <Logo />
         <div className="mt-3 login--container">
           <h4 className="text-center b-600 mb-3">Login Here</h4>
-          <Button color="primary" outline size="lg" block>
-            <i className="fa-brands fa-google me-3"></i> Sign in with Google
+          <Button
+            color="primary"
+            outline
+            size="lg"
+            block
+            onClick={async () => {
+              setGoogleSignInActivityIndicator(true);
+              await signIn("google");
+            }}
+            disabled={googleSignInActivityIndicator}
+          >
+            {googleSignInActivityIndicator ? (
+              <Spinner color="primary" />
+            ) : (
+              <>
+                <i className="fa-brands fa-google me-3"></i> Sign in with Google
+              </>
+            )}
           </Button>
           <DividerWithTitle title="Or" />
           <Formik
             initialValues={{ username: "", password: "" }}
             validate={loginInputValidator}
-            onSubmit={(values) => alert(JSON.stringify(values))}
+            onSubmit={async (values) => {
+              await signIn("credentials", { ...values, redirect: false }).then(
+                (resp) => {
+                  if (resp.error) {
+                    toast.error("SignIn Error: Check your credentials.");
+                    return false;
+                  }
+
+                  router.push("/");
+                }
+              );
+            }}
           >
             {({ errors, getFieldProps, handleSubmit }) => (
               <form noValidate onSubmit={handleSubmit}>
@@ -111,7 +145,7 @@ const Login = () => {
                     </p>
                   </Col>
                 </Row>
-                <Button color="primary" block>
+                <Button color="primary" block type="submit">
                   <i className="fa-solid fa-arrow-right-to-bracket me-3"></i>{" "}
                   Login
                 </Button>
@@ -122,6 +156,21 @@ const Login = () => {
       </div>
     </>
   );
+};
+
+export const getServerSideProps = async (context) => {
+  const session = await getSession({ req: context.req });
+
+  if (session) {
+    return {
+      redirect: {
+        destination: "/",
+        permanent: false,
+      },
+    };
+  }
+
+  return { props: {} };
 };
 
 export default Login;
