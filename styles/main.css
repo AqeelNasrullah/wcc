@@ -4,6 +4,10 @@
 @import "../node_modules/bootstrap/dist/css/bootstrap.min.css";
 @import "../node_modules/react-toastify/dist/ReactToastify.min.css";
 
+@import "./settings.css";
+
+@import "./components/header.css";
+
 * {
   font-family: "Titillium Web", sans-serif;
 }
