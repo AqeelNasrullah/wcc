@@ -23,7 +23,7 @@
 }
 
 .header--nav-link {
-  padding: 10px 20px;
+  padding: 0px 20px;
   color: var(--color-main-500);
   text-decoration: none;
 }

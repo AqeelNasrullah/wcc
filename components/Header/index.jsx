@@ -8,11 +8,8 @@ import { useRouter } from "next/router";
 
 const Header = () => {
   const { data: session, status } = useSession();
-  const router = useRouter();
 
   const [loginData, setLoginData] = useState(null);
-
-  console.log(session);
 
   useEffect(() => {
     if (status === "loading") {
@@ -22,15 +19,7 @@ const Header = () => {
         <>
           <Link href="/profile">
             {session?.user?.name}
-            {session?.role === "admin" && (
-              <span>
-                {" "}
-                (
-                {session?.role?.charAt(0).toUpperCase() +
-                  session?.role?.slice(1)}
-                )
-              </span>
-            )}
+            {session?.isAdmin && <span> ( Admin)</span>}
           </Link>
           &nbsp; &nbsp;
           <Link
@@ -38,9 +27,7 @@ const Header = () => {
             onClick={async (e) => {
               e.preventDefault();
               await signOut({ redirect: false })
-                .then(() => {
-                  router.push("/login");
-                })
+                .then()
                 .catch((err) => console.log("SignIn Error: ", err));
             }}
           >

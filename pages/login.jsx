@@ -77,7 +77,7 @@ const Login = () => {
             disabled={googleSignInActivityIndicator}
           >
             {googleSignInActivityIndicator ? (
-              <Spinner color="primary" />
+              <Spinner color="primary" size="sm" />
             ) : (
               <>
                 <i className="fa-brands fa-google me-3"></i> Sign in with Google
@@ -92,7 +92,9 @@ const Login = () => {
               await signIn("credentials", { ...values, redirect: false }).then(
                 (resp) => {
                   if (resp.error) {
-                    toast.error("SignIn Error: Check your credentials.");
+                    toast.error(
+                      "SignIn Error: Check your credentials or Try signing in using Google."
+                    );
                     return false;
                   }
 

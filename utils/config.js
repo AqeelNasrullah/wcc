@@ -8,3 +8,10 @@ export const keys = {
   googleClientId: process.env.NEXT_PUBLIC_G_CLIENT_ID,
   googleClientSecret: process.env.NEXT_PUBLIC_G_CLIENT_SECRET,
 };
+
+export const db = {
+  protocol: process.env.NEXT_PUBLIC_DB_PROTOCOL,
+  host: process.env.NEXT_PUBLIC_DB_HOST,
+  port: process.env.NEXT_PUBLIC_DB_PORT,
+  name: process.env.NEXT_PUBLIC_DB_NAME,
+};

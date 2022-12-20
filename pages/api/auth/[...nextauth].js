@@ -3,23 +3,25 @@ import { keys } from "utils/config";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
+import "utils/db";
+import User from "models/user";
+import { verifyPassword } from "utils/helpers";
+
 export default NextAuth({
   providers: [
     CredentialsProvider({
-      authorize(credentials) {
-        if (
-          credentials.username === "admin" &&
-          credentials.password === "password"
-        ) {
-          return {
-            id: 2,
-            name: "Aqeel Nasrullah",
-            email: "aqeelnasrullah1997@gmail.com",
-            image: "https://via.placeholder.com/50x50",
-            role: "admin",
-          };
+      async authorize({ username, password }) {
+        const user = await User.findOne({ username });
+        if (user) {
+          const passVerified = await verifyPassword(user.password, password);
+          if (passVerified) {
+            return user;
+          } else {
+            return null;
+          }
+        } else {
+          return null;
         }
-        return null;
       },
     }),
     GoogleProvider({
@@ -31,8 +33,8 @@ export default NextAuth({
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
-        token.role = user.role;
-        token.verified = user.emailVerified;
+        token.isAdmin = user.isAdmin;
+        token.verified = user.verified;
       }
 
       return token;
@@ -40,17 +42,37 @@ export default NextAuth({
     session: ({ session, token }) => {
       if (token) {
         session.id = token.id;
-        session.role = token.role;
+        session.isAdmin = token.isAdmin;
         session.verified = token.verified;
       }
 
       return session;
     },
-    signIn: ({ account, profile, user }) => {
+    signIn: async ({ account, profile, user }) => {
       if (account.provider === "google") {
-        user.role = "admin";
-        user.emailVerified = profile?.email_verified;
-        console.log("SignIn CallBack => ", profile);
+        const userData = await User.findOne({ email: profile?.email });
+
+        if (userData) {
+          user.id = userData._id;
+          user.isAdmin = userData.isAdmin;
+          user.verified = userData.verified;
+        } else {
+          try {
+            const userDataNew = await User.create({
+              image: profile?.picture,
+              name: profile?.name,
+              username: profile?.email.split("@")[0],
+              email: profile?.email,
+              verified: profile?.email_verified,
+            });
+
+            user.id = userDataNew._id;
+            user.isAdmin = userDataNew.isAdmin;
+            user.verified = userDataNew.verified;
+          } catch (error) {
+            console.log("SignIn Callback Error: ", error);
+          }
+        }
       }
 
       return true;
