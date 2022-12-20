@@ -8,6 +8,8 @@
 
 @import "./components/header.css";
 
+@import "./pages/login.css";
+
 * {
   font-family: "Titillium Web", sans-serif;
 }
