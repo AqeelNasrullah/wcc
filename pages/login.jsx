@@ -4,8 +4,8 @@ import PageHead from "components/PageHead";
 import InputField from "components/UI/InputField";
 import { Formik } from "formik";
 import Link from "next/link";
-import { useState } from "react";
-import { Button, Col, Row, Spinner } from "reactstrap";
+import { useEffect, useState } from "react";
+import { Alert, Button, Col, Row, Spinner } from "reactstrap";
 import { app } from "utils/config";
 import { getSession, signIn } from "next-auth/react";
 import { toast } from "react-toastify";
@@ -36,7 +36,16 @@ const Login = () => {
   const [googleSignInActivityIndicator, setGoogleSignInActivityIndicator] =
     useState(false);
 
+  const [error, setError] = useState("");
+
   const router = useRouter();
+  const errorParam = router.query.error;
+
+  useEffect(() => {
+    if (errorParam === "OAuthCallback") {
+      setError("Something went wrong in Google SignIn. Please try again.");
+    }
+  }, [errorParam]);
 
   return (
     <>
@@ -65,6 +74,17 @@ const Login = () => {
         <Logo />
         <div className="mt-3 login--container">
           <h4 className="text-center b-600 mb-3">Login Here</h4>
+
+          {error && (
+            <Alert
+              color="danger"
+              isOpen={!!error}
+              toggle={() => setError((prev) => !prev && "")}
+            >
+              {error}
+            </Alert>
+          )}
+
           <Button
             color="primary"
             outline
@@ -72,7 +92,7 @@ const Login = () => {
             block
             onClick={async () => {
               setGoogleSignInActivityIndicator(true);
-              await signIn("google");
+              await signIn("google", { redirect: false });
             }}
             disabled={googleSignInActivityIndicator}
           >

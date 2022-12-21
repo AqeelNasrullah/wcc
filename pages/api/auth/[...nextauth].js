@@ -80,6 +80,6 @@ export default NextAuth({
   },
   secret: keys.secret,
   pages: {
-    signIn: "login",
+    signIn: "/login",
   },
 });
