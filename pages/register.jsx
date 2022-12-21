@@ -11,13 +11,17 @@ import { getSession, signIn } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
 
-const loginInputValidator = (values) => {
+const registerInputValidator = (values) => {
   const errors = {};
 
-  if (values.username === "") {
-    errors.username = "This field is required.";
-  } else if (values.username.length < 3) {
-    errors.username = "Username is too short.";
+  if (values.email === "") {
+    errors.email = "This field is required.";
+  } else if (
+    !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/i.test(
+      values.email
+    )
+  ) {
+    errors.email = "Email is invalid.";
   }
 
   if (values.password === "") {
@@ -28,11 +32,23 @@ const loginInputValidator = (values) => {
     errors.password = "Password is too long.";
   }
 
+  if (values.re_password === "") {
+    errors.re_password = "This field is required.";
+  } else if (values.re_password.length < 6) {
+    errors.re_password = "Password is too short.";
+  } else if (values.re_password.length > 16) {
+    errors.re_password = "Password is too long.";
+  }
+
+  if (values.password !== values.re_password) {
+    errors.re_password = "Password is not matching to retype password.";
+  }
+
   return errors;
 };
 
-const Login = () => {
-  const [showPass, setShowPass] = useState("password");
+const Register = () => {
+  const [showPass] = useState("password");
   const [googleSignInActivityIndicator, setGoogleSignInActivityIndicator] =
     useState(false);
 
@@ -50,16 +66,16 @@ const Login = () => {
   return (
     <>
       <PageHead
-        title="Login"
+        title="Register"
         description={
-          "Login to " +
+          "Register to " +
           app.firstName +
           " " +
           app.lastName +
           " portal to create new tournament, add scorecard etc (admin only) and user can buy kits and other items from our store."
         }
         keywords={
-          "Login, Dashboard security check, " +
+          "Regsiter, Dashboard security check, " +
           app.firstName +
           " " +
           app.lastName +
@@ -73,7 +89,7 @@ const Login = () => {
       >
         <Logo />
         <div className="mt-3 login--container">
-          <h4 className="text-center b-600 mb-3">Login Here</h4>
+          <h4 className="text-center b-600 mb-3">Regsiter Here</h4>
 
           {error && (
             <Alert
@@ -106,31 +122,20 @@ const Login = () => {
           </Button>
           <DividerWithTitle title="Or" />
           <Formik
-            initialValues={{ username: "", password: "" }}
-            validate={loginInputValidator}
-            onSubmit={async (values) => {
-              await signIn("credentials", { ...values, redirect: false }).then(
-                (resp) => {
-                  if (resp.error) {
-                    toast.error(
-                      "SignIn Error: Check your credentials or Try signing in using Google."
-                    );
-                    return false;
-                  }
-
-                  router.push("/");
-                }
-              );
+            initialValues={{ email: "", password: "", re_password: "" }}
+            validate={registerInputValidator}
+            onSubmit={(values) => {
+              alert(JSON.stringify(values));
             }}
           >
             {({ errors, getFieldProps, handleSubmit }) => (
               <form noValidate onSubmit={handleSubmit}>
                 <InputField
-                  label="Username"
+                  label="Email"
                   type="text"
                   required
-                  error={errors.username}
-                  {...getFieldProps("username")}
+                  error={errors.email}
+                  {...getFieldProps("email")}
                 />
                 <InputField
                   label="Password"
@@ -139,43 +144,21 @@ const Login = () => {
                   error={errors.password}
                   {...getFieldProps("password")}
                 />
-                <Row className="mb-3">
-                  <Col md={6} sm={12}>
-                    <p className="mb-0 text-center text-md-start">
-                      <Link
-                        href="/"
-                        className="text-decoration-none"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          setShowPass((prev) =>
-                            prev === "password" ? "text" : "password"
-                          );
-                        }}
-                      >
-                        {showPass === "password" ? "Show" : "Hide"} Password
-                      </Link>
-                    </p>
-                  </Col>
-                  <Col md={6} sm={12}>
-                    <p className="mb-0 text-center text-md-end">
-                      <Link
-                        href="/forgot-password"
-                        className="text-decoration-none"
-                      >
-                        Forgot Password?
-                      </Link>
-                    </p>
-                  </Col>
-                </Row>
+                <InputField
+                  label="Retype Password"
+                  type={showPass}
+                  required
+                  error={errors.re_password}
+                  {...getFieldProps("re_password")}
+                />
                 <Button color="primary" block type="submit">
-                  <i className="fa-solid fa-arrow-right-to-bracket me-3"></i>{" "}
-                  Login
+                  <i className="fa-solid fa-user me-3"></i> Register
                 </Button>
               </form>
             )}
           </Formik>
           <p className="mb-0 mt-3 text-center">
-            Not a member? <Link href="/register">Register</Link>
+            Already Registered? <Link href="/login">Login</Link>
           </p>
         </div>
       </div>
@@ -198,4 +181,4 @@ export const getServerSideProps = async (context) => {
   return { props: {} };
 };
 
-export default Login;
+export default Register;

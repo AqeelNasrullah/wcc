@@ -22,7 +22,7 @@ const handler = async (req, res) => {
       }
     }
   } else {
-    res.status(404).json({ message: "Route not found" });
+    res.status(404).json({ message: "Route not found." });
   }
 };
 

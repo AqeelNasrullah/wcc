@@ -15,3 +15,11 @@ export const db = {
   port: process.env.NEXT_PUBLIC_DB_PORT,
   name: process.env.NEXT_PUBLIC_DB_NAME,
 };
+
+export const mail = {
+  username: process.env.NEXT_PUBLIC_EMAIL_USERNAME,
+  password: process.env.NEXT_PUBLIC_EMAIL_PASSWORD,
+  port: process.env.NEXT_PUBLIC_EMAIL_PORT,
+  service: process.env.NEXT_PUBLIC_EMAIL_SERVICE,
+  host: process.env.NEXT_PUBLIC_EMAIL_HOST,
+};
