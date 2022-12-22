@@ -6,7 +6,7 @@ export default function App({ Component, pageProps }) {
   return (
     <SessionProvider>
       <Component {...pageProps} />
-      <ToastContainer position="bottom-center" />
+      <ToastContainer position="bottom-right" theme="dark" />
     </SessionProvider>
   );
 }
