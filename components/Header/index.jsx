@@ -9,6 +9,8 @@ import { useRouter } from "next/router";
 const Header = () => {
   const { data: session, status } = useSession();
 
+  const router = useRouter();
+
   const [loginData, setLoginData] = useState(null);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ const Header = () => {
             onClick={async (e) => {
               e.preventDefault();
               await signOut({ redirect: false })
-                .then()
+                .then(() => router.push("/login"))
                 .catch((err) => console.log("SignIn Error: ", err));
             }}
           >
