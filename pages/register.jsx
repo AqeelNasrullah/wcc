@@ -10,6 +10,7 @@ import { app } from "utils/config";
 import { getSession, signIn } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { backendCall, end_points } from "utils/end-points";
 
 const registerInputValidator = (values) => {
   const errors = {};
@@ -116,7 +117,7 @@ const Register = () => {
               <Spinner color="primary" size="sm" />
             ) : (
               <>
-                <i className="fa-brands fa-google me-3"></i> Sign in with Google
+                <i className="fa-brands fa-google me-3"></i> Sign up with Google
               </>
             )}
           </Button>
@@ -124,8 +125,20 @@ const Register = () => {
           <Formik
             initialValues={{ email: "", password: "", re_password: "" }}
             validate={registerInputValidator}
-            onSubmit={(values) => {
-              alert(JSON.stringify(values));
+            onSubmit={async (values) => {
+              try {
+                const result = await backendCall
+                  .post(end_points.regsiter, {
+                    email: values.email,
+                    password: values.password,
+                  })
+                  .then((resp) => resp.data);
+
+                toast.success(result.message);
+                router.push("/login");
+              } catch (error) {
+                toast.error(error.response?.data?.message || error.message);
+              }
             }}
           >
             {({ errors, getFieldProps, handleSubmit }) => (

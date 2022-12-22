@@ -33,6 +33,7 @@ export default NextAuth({
     jwt: ({ token, user }) => {
       if (user) {
         token.id = user.id;
+        token.username = user.username;
         token.isAdmin = user.isAdmin;
         token.verified = user.verified;
       }
@@ -42,6 +43,7 @@ export default NextAuth({
     session: ({ session, token }) => {
       if (token) {
         session.id = token.id;
+        session.username = token.username;
         session.isAdmin = token.isAdmin;
         session.verified = token.verified;
       }
@@ -54,6 +56,7 @@ export default NextAuth({
 
         if (userData) {
           user.id = userData._id;
+          user.username = userData.username;
           user.isAdmin = userData.isAdmin;
           user.verified = userData.verified;
         } else {
@@ -67,6 +70,7 @@ export default NextAuth({
             });
 
             user.id = userDataNew._id;
+            user.username = userDataNew.username;
             user.isAdmin = userDataNew.isAdmin;
             user.verified = userDataNew.verified;
           } catch (error) {

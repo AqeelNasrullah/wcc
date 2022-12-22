@@ -18,7 +18,7 @@ const Header = () => {
       setLoginData(
         <>
           <Link href="/profile">
-            {session?.user?.name}
+            {session?.user?.name || session?.username}
             {session?.isAdmin && <span> ( Admin)</span>}
           </Link>
           &nbsp; &nbsp;
