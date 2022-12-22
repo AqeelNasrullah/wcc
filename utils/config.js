@@ -1,6 +1,9 @@
 export const app = {
   firstName: process.env.NEXT_PUBLIC_APP_FIRST_NAME,
   lastName: process.env.NEXT_PUBLIC_APP_LAST_NAME,
+  appUrlDev: process.env.NEXT_PUBLIC_APP_URL_DEV,
+  appUrlStaging: process.env.NEXT_PUBLIC_APP_URL_STAGING,
+  appUrlProduction: process.env.NEXT_PUBLIC_APP_URL_PROD,
 };
 
 export const keys = {

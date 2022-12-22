@@ -1,9 +1,10 @@
 import axios from "axios";
+import { app } from "./config";
 
 const servers = {
-  dev: "http://localhost:3000/api",
-  staging: "",
-  production: "",
+  dev: app.appUrlDev + "/api",
+  staging: app.appUrlStaging + "/api",
+  production: app.appUrlProduction + "/api",
 };
 
 export const end_points = {
