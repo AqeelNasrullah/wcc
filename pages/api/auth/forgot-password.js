@@ -1,6 +1,7 @@
 import { transporter } from "utils/transporters";
+import forgotPasswordHandler from "utils/serverRouter";
 
-const handler = (req, res) => {
+forgotPasswordHandler.post((req, res) => {
   transporter.sendMail(
     {
       from: "WCC Admin <service@wcc.com>",
@@ -17,6 +18,6 @@ const handler = (req, res) => {
       }
     }
   );
-};
+});
 
-export default handler;
+export default forgotPasswordHandler;

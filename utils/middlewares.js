@@ -1,11 +1,14 @@
 import { getSession } from "next-auth/react";
 
-export const verifyEndPoint = async (req) => {
+export const authVerify = async (req, res, next) => {
   const session = await getSession({ req });
 
   if (!session) {
-    return { status: false, message: "Unauthorized" };
+    res.status(401).json({ message: "You are not authorized." });
+    return false;
   }
 
-  return { status: true, session };
+  req.session = session;
+
+  next();
 };
