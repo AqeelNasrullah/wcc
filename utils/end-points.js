@@ -9,9 +9,11 @@ const servers = {
 
 export const end_points = {
   regsiter: "/auth/register",
+  profile: "/auth/profile",
 };
 
 export const backendCall = axios.create({
+  withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },

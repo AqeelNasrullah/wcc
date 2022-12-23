@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { assets } from "utils/config";
 
 const Schema = mongoose.Schema;
 
@@ -6,7 +7,7 @@ const userSchema = new Schema(
   {
     image: {
       type: String,
-      default: "https://via.placeholder.com/50x50",
+      default: assets.avatar,
       required: false,
     },
     name: {

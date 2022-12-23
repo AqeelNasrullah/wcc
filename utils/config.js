@@ -6,6 +6,11 @@ export const app = {
   appUrlProduction: process.env.NEXT_PUBLIC_APP_URL_PROD,
 };
 
+export const assets = {
+  avatar:
+    "https://upload.wikimedia.org/wikipedia/commons/8/89/Portrait_Placeholder.png",
+};
+
 export const keys = {
   secret: process.env.NEXT_PUBLIC_SECRET,
   googleClientId: process.env.NEXT_PUBLIC_G_CLIENT_ID,
