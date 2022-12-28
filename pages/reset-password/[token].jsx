@@ -1,26 +1,17 @@
-import DividerWithTitle from "components/Dividers/DividerWithTitle";
 import Logo from "components/Logo";
 import PageHead from "components/PageHead";
 import InputField from "components/UI/InputField";
+import { useToast } from "contexts/toast-context";
 import { Formik } from "formik";
+import { getSession } from "next-auth/react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { Alert, Button, Col, Row, Spinner } from "reactstrap";
-import { app } from "utils/config";
-import { getSession, signIn } from "next-auth/react";
-import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { Button } from "reactstrap";
+import { app } from "utils/config";
 import { backendCall, end_points } from "utils/end-points";
-import { emailIsValid } from "utils/helpers";
 
-const registerInputValidator = (values) => {
+const resetPasswordInputHandler = (values) => {
   const errors = {};
-
-  if (values.email === "") {
-    errors.email = "This field is required.";
-  } else if (!emailIsValid(values.email)) {
-    errors.email = "Email is invalid.";
-  }
 
   if (values.password === "") {
     errors.password = "This field is required.";
@@ -38,42 +29,30 @@ const registerInputValidator = (values) => {
     errors.re_password = "Password is too long.";
   }
 
-  if (values.password !== values.re_password) {
-    errors.re_password = "Password is not matching to retype password.";
+  if (values.re_password && values.password !== values.re_password) {
+    errors.re_password = "Password must be equal to retype password.";
   }
 
   return errors;
 };
 
-const Register = () => {
-  const [showPass] = useState("password");
-  const [googleSignInActivityIndicator, setGoogleSignInActivityIndicator] =
-    useState(false);
-
-  const [error, setError] = useState("");
-
+const Token = () => {
   const router = useRouter();
-  const errorParam = router.query.error;
-
-  useEffect(() => {
-    if (errorParam === "OAuthCallback") {
-      setError("Something went wrong in Google SignIn. Please try again.");
-    }
-  }, [errorParam]);
+  const { toast } = useToast();
 
   return (
     <>
       <PageHead
-        title="Register"
+        title="Forgot Password"
         description={
-          "Register to " +
+          "Login to " +
           app.firstName +
           " " +
           app.lastName +
           " portal to create new tournament, add scorecard etc (admin only) and user can buy kits and other items from our store."
         }
         keywords={
-          "Regsiter, Dashboard security check, " +
+          "Reset Password, Password Security, Dashboard security check, " +
           app.firstName +
           " " +
           app.lastName +
@@ -87,51 +66,19 @@ const Register = () => {
       >
         <Logo />
         <div className="mt-3 login--container">
-          <h4 className="text-center b-600 mb-3">Regsiter Here</h4>
+          <h4 className="text-center b-600 mb-3">Enter New Password</h4>
 
-          {error && (
-            <Alert
-              color="danger"
-              isOpen={!!error}
-              toggle={() => setError((prev) => !prev && "")}
-            >
-              {error}
-            </Alert>
-          )}
-
-          <Button
-            color="primary"
-            outline
-            size="lg"
-            block
-            onClick={async () => {
-              setGoogleSignInActivityIndicator(true);
-              await signIn("google", { redirect: false });
-            }}
-            disabled={googleSignInActivityIndicator}
-          >
-            {googleSignInActivityIndicator ? (
-              <Spinner color="primary" size="sm" />
-            ) : (
-              <>
-                <i className="fa-brands fa-google me-3"></i> Sign up with Google
-              </>
-            )}
-          </Button>
-          <DividerWithTitle title="Or" />
           <Formik
-            initialValues={{ email: "", password: "", re_password: "" }}
-            validate={registerInputValidator}
+            initialValues={{ password: "", re_password: "" }}
+            validate={resetPasswordInputHandler}
             onSubmit={async (values) => {
               try {
-                const result = await backendCall
-                  .post(end_points.regsiter, {
-                    email: values.email,
+                const resp = await backendCall
+                  .post(end_points.reset_password + router.query.token, {
                     password: values.password,
                   })
                   .then((resp) => resp.data);
-
-                toast(result.message, "success");
+                toast(resp.message, "success");
                 router.push("/login");
               } catch (error) {
                 toast(error.response?.data?.message || error.message, "error");
@@ -141,34 +88,28 @@ const Register = () => {
             {({ errors, getFieldProps, handleSubmit }) => (
               <form noValidate onSubmit={handleSubmit}>
                 <InputField
-                  label="Email"
-                  type="text"
-                  required
-                  error={errors.email}
-                  {...getFieldProps("email")}
-                />
-                <InputField
                   label="Password"
-                  type={showPass}
+                  type="password"
                   required
                   error={errors.password}
                   {...getFieldProps("password")}
                 />
                 <InputField
                   label="Retype Password"
-                  type={showPass}
+                  type="password"
                   required
                   error={errors.re_password}
                   {...getFieldProps("re_password")}
                 />
+
                 <Button color="primary" block type="submit">
-                  <i className="fa-solid fa-user me-3"></i> Register
+                  <i className="fa-solid fa-floppy-disk"></i> Save Password
                 </Button>
               </form>
             )}
           </Formik>
           <p className="mb-0 mt-3 text-center">
-            Already Registered? <Link href="/login">Login</Link>
+            <Link href="/login">Login Here</Link>
           </p>
         </div>
       </div>
@@ -191,4 +132,4 @@ export const getServerSideProps = async (context) => {
   return { props: {} };
 };
 
-export default Register;
+export default Token;

@@ -1,0 +1,35 @@
+.pills-container {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 0px;
+  margin: 0px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  padding-bottom: 5px;
+}
+
+.pill {
+  border-radius: 20px;
+  list-style: none;
+  background-color: var(--color-lightgray-100);
+  white-space: nowrap;
+  overflow: none;
+}
+
+.pill > a {
+  text-decoration: none;
+  color: var(--color-black);
+  padding: 5px 20px;
+  display: block;
+}
+
+.pills-container::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+.pills-container::-webkit-scrollbar-thumb {
+  background-color: var(--color-lightgray-100);
+}

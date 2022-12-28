@@ -1,0 +1,75 @@
+export const forgotPassword = (link) => {
+  return `<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      * {
+        padding: 0px;
+        margin: 0px;
+        font-family: "Montserrat", sans-serif;
+        box-sizing: border-box;
+      }
+
+      .button {
+        padding: 15px 25px;
+        background-color: gray;
+        color: white !important;
+        text-decoration: none;
+        border-radius: 5px;
+      }
+
+      .button:hover {
+        filter: brightness(90%);
+      }
+
+      .link {
+        color: blue !important;
+      }
+    </style>
+  </head>
+  <body>
+    <div style="padding: 50px">
+      <h2 style="text-align: center; margin-bottom: 30px">
+        World Cricket Championship
+      </h2>
+      <div
+        style="
+          background-color: #efefef;
+          margin: 0px auto;
+          max-width: 700px;
+          width: 100%;
+          padding: 20px;
+        "
+      >
+        <h1 style="margin-bottom: 20px">Forgot Password</h1>
+        <p style="margin-bottom: 25px">
+          Reset password request has been initiated. Click on the button or copy
+          the link below and paste it in urlbar.
+        </p>
+        <a
+          href=${link}
+          style="margin-bottom: 15px; display: inline-block"
+          class="button"
+          >Reset Password</a
+        >
+        <p style="margin-bottom: 15px">or</p>
+        <a
+          href=${link}
+          style="margin-bottom: 30px; display: inline-block"
+          class="link"
+          >${link}</a
+        >
+        <p style="margin-bottom: 30px">
+          If you didn't initiated it just ignore this email.
+        </p>
+        <p>Regards</p>
+        <p>WCC Team</p>
+      </div>
+    </div>
+  </body>
+</html>
+`;
+};

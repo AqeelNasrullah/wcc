@@ -1,15 +1,16 @@
 import axios from "axios";
 import { app } from "./config";
 
-const servers = {
-  dev: app.appUrlDev + "/api",
-  staging: app.appUrlStaging + "/api",
-  production: app.appUrlProduction + "/api",
-};
-
 export const end_points = {
   regsiter: "/auth/register",
+  change_password: "/auth/change-password",
   profile: "/auth/profile",
+  forgot_password: "/auth/forgot-password",
+  upload_single: "/upload/single",
+  reset_password: "/auth/reset-password/",
+  users: "/users",
+  users_add: "/users/add",
+  users_single: "/users/",
 };
 
 export const backendCall = axios.create({
@@ -17,5 +18,5 @@ export const backendCall = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  baseURL: servers.dev,
+  baseURL: app.appUrl + "/api",
 });

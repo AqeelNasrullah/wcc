@@ -7,6 +7,7 @@
 @import "./settings.css";
 
 @import "./components/header.css";
+@import "./components/pills.css";
 
 @import "./pages/login.css";
 

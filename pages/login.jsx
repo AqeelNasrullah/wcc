@@ -10,6 +10,7 @@ import { app } from "utils/config";
 import { getSession, signIn } from "next-auth/react";
 import { toast } from "react-toastify";
 import { useRouter } from "next/router";
+import { useToast } from "contexts/toast-context";
 
 const loginInputValidator = (values) => {
   const errors = {};
@@ -39,6 +40,7 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const router = useRouter();
+  const { toast } = useToast();
   const errorParam = router.query.error;
 
   useEffect(() => {
@@ -112,8 +114,9 @@ const Login = () => {
               await signIn("credentials", { ...values, redirect: false }).then(
                 (resp) => {
                   if (resp.error) {
-                    toast.error(
-                      "SignIn Error: Check your credentials or Try signing in using Google."
+                    toast(
+                      "SignIn Error: Check your credentials or Try signing in using Google.",
+                      "error"
                     );
                     return false;
                   }

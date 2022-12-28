@@ -1,8 +1,8 @@
 import Loading from "components/Loading";
+import ToastProvider from "contexts/toast-context";
 import { SessionProvider } from "next-auth/react";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
-import { ToastContainer } from "react-toastify";
 import "../styles/main.css";
 
 export default function App({ Component, pageProps }) {
@@ -25,14 +25,11 @@ export default function App({ Component, pageProps }) {
     };
   }, []);
 
-  if (loading) {
-    return <Loading />;
-  }
-
   return (
     <SessionProvider>
-      <Component {...pageProps} />
-      <ToastContainer position="bottom-right" theme="dark" />
+      <ToastProvider>
+        {loading ? <Loading /> : <Component {...pageProps} />}
+      </ToastProvider>
     </SessionProvider>
   );
 }

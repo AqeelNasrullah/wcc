@@ -6,7 +6,7 @@ const Switch = ({ label, required, type, error, checked, ...rest }) => {
     <FormGroup switch>
       <Input
         type="switch"
-        checked={checked}
+        defaultChecked={checked}
         {...rest}
         id="switch"
         className={`${error && "is-invalid"}`}

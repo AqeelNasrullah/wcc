@@ -1,26 +1,201 @@
 import EndpointError from "components/EndpointError";
 import Header from "components/Header";
+import Loading from "components/Loading";
 import PageHead from "components/PageHead";
 import InputField from "components/UI/InputField";
 import Switch from "components/UI/Switch";
+import { useToast } from "contexts/toast-context";
 import { Formik } from "formik";
-import { getSession } from "next-auth/react";
+import { getSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import Dropzone from "react-dropzone";
-import { Button, Col, Row } from "reactstrap";
+import { toast } from "react-toastify";
+import { Button, Col, Modal, ModalBody, ModalHeader, Row } from "reactstrap";
 import { backendCall, end_points } from "utils/end-points";
+import { getImage } from "utils/helpers";
+
+const profileInputValidator = (values) => {
+  const errors = {};
+
+  if (values.name === "") {
+    errors.name = "This field is required.";
+  }
+
+  if (values.username === "") {
+    errors.username = "This field is required.";
+  }
+
+  return errors;
+};
+
+const changePasswordInputHandler = (values) => {
+  const errors = {};
+
+  if (values.old_password === "") {
+    errors.old_password = "This field is required.";
+  } else if (values.old_password.length < 6) {
+    errors.old_password = "Password is too short.";
+  } else if (values.old_password.length > 16) {
+    errors.old_password = "Password is too long.";
+  }
+
+  if (values.new_password === "") {
+    errors.new_password = "This field is required.";
+  } else if (values.new_password.length < 6) {
+    errors.new_password = "Password is too short.";
+  } else if (values.new_password.length > 16) {
+    errors.new_password = "Password is too long.";
+  }
+
+  if (values.re_new_password === "") {
+    errors.re_new_password = "This field is required.";
+  } else if (values.re_new_password.length < 6) {
+    errors.re_new_password = "Password is too short.";
+  } else if (values.re_new_password.length > 16) {
+    errors.re_new_password = "Password is too long.";
+  }
+
+  if (values.new_password !== values.re_new_password) {
+    errors.re_new_password =
+      "New password is not equal to retype new password.";
+  }
+
+  return errors;
+};
 
 const Profile = ({ status, user, message }) => {
   if (!status) {
     return <EndpointError message={message} />;
   }
 
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const [loading, setLoading] = useState(false);
+  const [profilePicture, setProfilePicture] = useState(user?.image || "");
+  const [changePasswordMessage, setChangePasswordMessage] = useState(false);
+
+  const changePasswordMessageToggler = () =>
+    setChangePasswordMessage((prev) => !prev);
+
+  const fileUploadHandler = async (files) => {
+    setLoading(true);
+    if (files.length > 0) {
+      const file = files[0];
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const resp = await backendCall
+          .post(end_points.upload_single, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((resp) => resp.data);
+
+        setProfilePicture(resp?.filename);
+
+        setLoading(false);
+      } catch (error) {
+        toast(error.response?.data?.message || error.message, "error");
+        setLoading(false);
+      }
+    } else {
+      toast("Upload file.", "error");
+    }
+  };
+
   return (
     <>
+      {loading && (
+        <div
+          style={{
+            width: "100%",
+            height: "100vh",
+            position: "fixed",
+            top: "0px",
+            left: "0px",
+            zIndex: 99999,
+            backgroundColor: "#0007",
+          }}
+        >
+          <Loading />
+        </div>
+      )}
+
       <PageHead title={(user?.name || user?.username) + " Profile"} />
 
       <div>
         <Header />
+
+        <Modal
+          isOpen={changePasswordMessage}
+          // toggle={changePasswordMessageToggler}
+        >
+          <ModalHeader toggle={changePasswordMessageToggler}>
+            Change Password
+          </ModalHeader>
+          <ModalBody>
+            <Formik
+              initialValues={{
+                old_password: "",
+                new_password: "",
+                re_new_password: "",
+              }}
+              validate={changePasswordInputHandler}
+              onSubmit={async (values) => {
+                try {
+                  const resp = await backendCall
+                    .post(end_points.change_password, {
+                      old_password: values.old_password,
+                      new_password: values.new_password,
+                    })
+                    .then((resp) => resp.data);
+                  toast(resp.message, "success");
+                  changePasswordMessageToggler();
+                  await signOut({ redirect: false });
+                  router.push("/");
+                } catch (error) {
+                  toast(
+                    error.response?.data?.message || error.message,
+                    "error"
+                  );
+                }
+              }}
+            >
+              {({ errors, getFieldProps, handleSubmit }) => (
+                <form noValidate onSubmit={handleSubmit}>
+                  <InputField
+                    label="Old Password"
+                    type="password"
+                    required
+                    error={errors.old_password}
+                    {...getFieldProps("old_password")}
+                  />
+                  <InputField
+                    label="New Password"
+                    type="password"
+                    required
+                    error={errors.new_password}
+                    {...getFieldProps("new_password")}
+                  />
+                  <InputField
+                    label="Retype New Password"
+                    type="password"
+                    required
+                    error={errors.re_new_password}
+                    {...getFieldProps("re_new_password")}
+                  />
+                  <Button type="submit" color="primary" block>
+                    Save
+                  </Button>
+                </form>
+              )}
+            </Formik>
+          </ModalBody>
+        </Modal>
 
         <div>
           <div
@@ -34,14 +209,23 @@ const Profile = ({ status, user, message }) => {
             <h3 className="mb-5">{user.name || user.username}'s Profile</h3>
             <Formik
               initialValues={{
-                name: user.name,
-                username: user.username,
-                email: user.email,
-                verified: user.verified,
-                isAdmin: user.isAdmin,
+                name: user.name || "",
+                username: user.username || "",
+                email: user.email || "",
+                verified: user.verified || false,
+                isAdmin: user.isAdmin || false,
               }}
               enableReinitialize
-              onSubmit={(values) => alert(JSON.stringify(values))}
+              validate={profileInputValidator}
+              onSubmit={async (values) => {
+                await backendCall
+                  .put(end_points.profile, {
+                    image: profilePicture,
+                    ...values,
+                  })
+                  .then((resp) => resp.data);
+                toast("Profile updated successfully.", "success");
+              }}
             >
               {({ values, errors, getFieldProps, handleSubmit }) => (
                 <form noValidate onSubmit={handleSubmit}>
@@ -58,7 +242,7 @@ const Profile = ({ status, user, message }) => {
                       }}
                     >
                       <Image
-                        src={user.image}
+                        src={getImage(profilePicture)}
                         width={100}
                         height={100}
                         alt="Not found"
@@ -66,11 +250,9 @@ const Profile = ({ status, user, message }) => {
                     </div>
                     <Dropzone
                       multiple={false}
-                      onDrop={(files) => {
-                        console.log(files[0]);
-                      }}
+                      onDrop={fileUploadHandler}
                       onError={(err) => {
-                        console.log(err);
+                        console.log("pages > profile => DropZone Error: ", err);
                       }}
                     >
                       {({ getRootProps, getInputProps }) => (
@@ -124,20 +306,42 @@ const Profile = ({ status, user, message }) => {
                       />
                     </Col>
                   </Row>
-                  <Row className="mb-3">
-                    <Col md={6} sm={12}>
-                      <Switch
-                        checked={values.verified}
-                        {...getFieldProps("verified")}
-                        label="Verified"
-                      />
-                    </Col>
-                    <Col md={6} sm={12}>
-                      <Switch
-                        checked={values.isAdmin}
-                        label="Admin"
-                        {...getFieldProps("isAdmin")}
-                      />
+                  <Row className="mb-3 align-items-center">
+                    {user?.isAdmin && (
+                      <>
+                        <Col md={6} sm={12} className="mb-2">
+                          <Switch
+                            checked={values.verified}
+                            {...getFieldProps("verified")}
+                            label="Verified"
+                          />
+                        </Col>
+                        <Col md={6} sm={12} className="mb-2">
+                          <Switch
+                            checked={values.isAdmin}
+                            label="Admin"
+                            {...getFieldProps("isAdmin")}
+                          />
+                        </Col>
+                      </>
+                    )}
+                    <Col md={12} sm={12}>
+                      {user?.password ? (
+                        <Button
+                          type="button"
+                          color="primary"
+                          outline
+                          onClick={changePasswordMessageToggler}
+                        >
+                          Change Password
+                        </Button>
+                      ) : (
+                        <p className="text-danger">
+                          <i className="fa-solid fa-triangle-exclamation"></i>{" "}
+                          You have not created password yet. Logout and use
+                          forgot password option to create password.
+                        </p>
+                      )}
                     </Col>
                   </Row>
                   <Button type="submit" color="primary" block>

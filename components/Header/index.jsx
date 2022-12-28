@@ -19,11 +19,19 @@ const Header = () => {
     } else if (status === "authenticated") {
       setLoginData(
         <>
+          <Link href="/dashboard">Dashboard</Link>
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+          {session?.isAdmin && (
+            <>
+              <Link href="/users">Users</Link>
+              &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+            </>
+          )}
           <Link href="/profile">
             {session?.user?.name || session?.username}
             {session?.isAdmin && <span> ( Admin)</span>}
           </Link>
-          &nbsp; &nbsp;
+          &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
           <Link
             href="/login"
             onClick={async (e) => {
